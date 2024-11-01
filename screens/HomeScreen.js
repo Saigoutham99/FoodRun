@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { auth } from '../firebaseConfig';
 import { getDatabase, ref, onValue } from 'firebase/database';
 
-const categories = ['Fries', 'Burger', 'Drink', 'Pasta', 'Pizza'];
+const categories = ['Fries', 'Burger', 'Drink', 'Pasta', 'Pizza','Briyani','Paneer'];
 
 const restaurants = [
   {
@@ -36,8 +36,8 @@ const restaurants = [
     menu: [
       { item: 'Pasta', price: 8.99, calories: 400, image: require('../assets/images/pasta.jpg') },
       { item: 'Drink', price: 1.99, calories: 150, image: require('../assets/images/drink.jpg') },
-      { item: 'Briyani', price: 1.99, calories: 150, image: require('../assets/images/briyani.jpg') },
-      { item: 'Paneer', price: 1.99, calories: 150, image: require('../assets/images/paneer.jpg') },
+      { item: 'Briyani', price: 12.99, calories: 150, image: require('../assets/images/briyani.jpg') },
+      { item: 'Paneer', price: 13.99, calories: 150, image: require('../assets/images/paneer.jpg') },
     ],
   },
   {
@@ -49,8 +49,8 @@ const restaurants = [
     menu: [
       { item: 'Burger', price: 6.99, calories: 600, image: require('../assets/images/burger.jpg') },
       { item: 'Drink', price: 1.99, calories: 150, image: require('../assets/images/drink.jpg') },
-      { item: 'Briyani', price: 1.99, calories: 150, image: require('../assets/images/briyani.jpg') },
-      { item: 'Paneer', price: 1.99, calories: 150, image: require('../assets/images/paneer.jpg') },
+      { item: 'Briyani', price: 14.99, calories: 150, image: require('../assets/images/briyani.jpg') },
+      { item: 'Paneer', price: 15.99, calories: 150, image: require('../assets/images/paneer.jpg') },
     ],
   },
   {
