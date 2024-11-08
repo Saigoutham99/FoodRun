@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   Alert,
+  Image,
 } from 'react-native';
 
 const CheckoutScreen = ({ route, navigation }) => {
@@ -17,6 +18,7 @@ const CheckoutScreen = ({ route, navigation }) => {
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [instructionsModalVisible, setInstructionsModalVisible] = useState(false);
   const [addCardModalVisible, setAddCardModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Loading state
 
   const [address, setAddress] = useState({
     country: '',
@@ -48,10 +50,21 @@ const CheckoutScreen = ({ route, navigation }) => {
     if (Object.values(address).some((field) => field === '')) {
       Alert.alert('Error', 'Please fill in all required fields.');
     } else {
-      Alert.alert('Success', 'Order Placed Successfully!');
-      navigation.goBack(); // Go back to CartScreen after placing order
+      setIsLoading(true); // Set loading to true to show the loading GIF
+
+      const orderId = Math.floor(100000 + Math.random() * 900000); 
+
+      // Simulate loading time with a 7-second delay
+      setTimeout(() => {
+        setIsLoading(false); // Stop showing loading GIF after 7 seconds
+        navigation.navigate('OrderConfirmation', {
+          orderId: orderId.toString(),
+          total,
+          cartItems,
+          address,
+        });
+      }, 7000);
     }
-    
   };
 
   return (
@@ -103,6 +116,16 @@ const CheckoutScreen = ({ route, navigation }) => {
       <TouchableOpacity onPress={() => navigation.goBack()}>
         <Text style={styles.backButton}>Back to Cart</Text>
       </TouchableOpacity>
+
+      {/* Loading Modal with GIF */}
+      {isLoading && (
+        <Modal transparent={true} animationType="fade">
+          <View style={styles.loadingContainer}>
+            <Image source={require('../assets/images/processing.gif')} style={styles.loadingImage} />
+            <Text style={styles.loadingText}>Processing your order...</Text>
+          </View>
+        </Modal>
+      )}
 
       {/* Address Modal */}
       <Modal visible={addressModalVisible} animationType="slide">
@@ -246,6 +269,14 @@ const styles = StyleSheet.create({
   placeOrderButton: { backgroundColor: '#004d40', padding: 15, borderRadius: 8, alignItems: 'center' },
   placeOrderButtonText: { color: '#fff', fontSize: 18 },
   backButton: { color: '#004d40', marginTop: 10, textAlign: 'center' },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  loadingImage: { width: 100, height: 100 },
+  loadingText: { color: '#fff', fontSize: 18, marginTop: 10 },
   modalContainer: { flex: 1, padding: 20, backgroundColor: '#fff' },
   modalTitle: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
   input: { borderColor: '#ccc', borderWidth: 1, borderRadius: 8, padding: 10, marginBottom: 10 },
