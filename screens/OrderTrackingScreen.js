@@ -1,116 +1,182 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const OrderTrackingScreen = ({ navigation }) => {
+  const [showAllUpdates, setShowAllUpdates] = useState(false);
+  const [timeStamps, setTimeStamps] = useState({});
+
+  useEffect(() => {
+    const currentTime = new Date();
+    const addMinutes = (date, minutes) => new Date(date.getTime() + minutes * 60000);
+
+    setTimeStamps({
+      orderPlaced: currentTime,
+      preparing: addMinutes(currentTime, 5),
+      pickedUp: addMinutes(currentTime, 20),
+      outForDelivery: addMinutes(currentTime, 30),
+      nearby: addMinutes(currentTime, 35),
+      arrivingSoon: addMinutes(currentTime, 45),
+    });
+  }, []);
+
+  const toggleUpdates = () => setShowAllUpdates(!showAllUpdates);
+
+  const formatTime = (date) => {
+    if (!date) return '';
+    const hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 || 12;
+    return `${formattedHours}:${minutes} ${ampm}`;
+  };
+
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {/* Back Button */}
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
         <Icon name="arrow-back" size={24} color="#004d40" />
       </TouchableOpacity>
 
-      {/* Simulated Map Background */}
-      <Image 
-        source={{ uri: 'https://via.placeholder.com/400x600.png?text=Static+Map+Background' }} 
-        style={styles.mapImage}
-      />
+      {/* Order Tracking Timeline */}
+      <View style={styles.timelineContainer}>
+        <Text style={styles.arrivalText}>Estimated Arrival: Within 45 mins</Text>
 
-      {/* Static Markers */}
-      <View style={styles.markerRestaurant}>
-        <Icon name="restaurant" size={24} color="#FF5733" />
-        <Text style={styles.markerLabel}>Restaurant</Text>
+        <View style={styles.timeline}>
+          {/* Order Placed Step */}
+          <View style={styles.timelineStep}>
+            <Icon name="checkmark-circle" size={24} color="#4CAF50" style={styles.icon} />
+            <View style={styles.timelineContent}>
+              <Text style={styles.timelineTitle}>Order Placed</Text>
+              <Text style={styles.timelineDate}>{formatTime(timeStamps.orderPlaced)}</Text>
+            </View>
+          </View>
+
+          {/* Preparing Step */}
+          <View style={styles.timelineStep}>
+            <Icon name="checkmark-circle" size={24} color="#FFC107" style={styles.icon} />
+            <View style={styles.timelineContent}>
+              <Text style={styles.timelineTitle}>Preparing your order</Text>
+              <Text style={styles.timelineDate}>{formatTime(timeStamps.preparing)}</Text>
+            </View>
+          </View>
+
+          {/* Order Picked Up Step */}
+          <View style={styles.timelineStep}>
+            <Icon name="checkmark-circle" size={24} color="#FF5722" style={styles.icon} />
+            <View style={styles.timelineContent}>
+              <Text style={styles.timelineTitle}>Picked up by delivery person</Text>
+              <Text style={styles.timelineDate}>{formatTime(timeStamps.pickedUp)}</Text>
+            </View>
+          </View>
+
+          {/* Out for Delivery Step */}
+          <View style={styles.timelineStep}>
+            <Icon name="checkmark-circle" size={24} color="#4CAF50" style={styles.icon} />
+            <View style={styles.timelineContent}>
+              <Text style={styles.timelineTitle}>Out for delivery</Text>
+              <TouchableOpacity onPress={toggleUpdates}>
+                <Text style={styles.updateLink}>See all updates</Text>
+              </TouchableOpacity>
+              <Text style={styles.timelineDate}>{formatTime(timeStamps.outForDelivery)}</Text>
+            </View>
+          </View>
+
+          {/* Additional Updates - Only visible if showAllUpdates is true */}
+          {showAllUpdates && (
+            <>
+              <View style={styles.timelineStep}>
+                <Icon name="time-outline" size={24} color="#2196F3" style={styles.icon} />
+                <View style={styles.timelineContent}>
+                  <Text style={styles.timelineTitle}>Nearby your location</Text>
+                  <Text style={styles.timelineDate}>{formatTime(timeStamps.nearby)}</Text>
+                </View>
+              </View>
+              <View style={styles.timelineStep}>
+                <Icon name="ellipse-outline" size={24} color="#9E9E9E" style={styles.icon} />
+                <View style={styles.timelineContent}>
+                  <Text style={styles.timelineTitle}>Arriving soon</Text>
+                  <Text style={styles.timelineDate}>Expected by {formatTime(timeStamps.arrivingSoon)}</Text>
+                </View>
+              </View>
+            </>
+          )}
+        </View>
       </View>
-
-      <View style={styles.markerCustomer}>
-        <Icon name="person" size={24} color="#004d40" />
-        <Text style={styles.markerLabel}>Customer</Text>
-      </View>
-
-      {/* Simulated Path */}
-      <View style={styles.pathSegment} />
-      <View style={[styles.pathSegment, { top: 230, left: 150 }]} />
-      <View style={[styles.pathSegment, { top: 270, left: 180 }]} />
-      <View style={[styles.pathSegment, { top: 310, left: 210 }]} />
-      <View style={[styles.pathSegment, { top: 350, left: 240 }]} />
-
-      {/* Order Information Panel */}
-      <View style={styles.bottomPanel}>
-        <Image source={{ uri: 'https://via.placeholder.com/60' }} style={styles.driverImage} />
-        <Text style={styles.statusText}>On the way • 25 mins</Text>
-        <Text style={styles.addressText}>Jl. Jendral Soedirman 207, Ubud, Bali</Text>
-        <TouchableOpacity style={styles.orderReceivedButton}>
-          <Text style={styles.orderReceivedText}>Order Received</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: {
+    flexGrow: 1,
+    padding: 20,
+    backgroundColor: '#FAFAFA',
+  },
   backButton: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    zIndex: 1,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
     backgroundColor: '#ffffff',
     borderRadius: 20,
     padding: 8,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
     elevation: 5,
   },
-  mapImage: {
-    flex: 1,
-    resizeMode: 'cover',
-    position: 'absolute',
-    width: '100%',
-    height: '70%',
+  arrivalText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 20,
+    textAlign: 'center',
   },
-  markerRestaurant: {
-    position: 'absolute',
-    top: 150,
-    left: 100,
-    alignItems: 'center',
-  },
-  markerCustomer: {
-    position: 'absolute',
-    top: 400,
-    left: 250,
-    alignItems: 'center',
-  },
-  markerLabel: { fontSize: 12, color: '#333', marginTop: 4 },
-  pathSegment: {
-    position: 'absolute',
-    top: 190,
-    left: 120,
-    width: 20,
-    height: 5,
-    backgroundColor: '#FFA500',
-    borderRadius: 2,
-  },
-  bottomPanel: {
+  timelineContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 15,
     padding: 20,
-    backgroundColor: '#fff',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+  },
+  timeline: {
+    borderLeftWidth: 3,
+    borderLeftColor: '#4CAF50',
+    paddingLeft: 20,
+  },
+  timelineStep: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    marginTop: -20,
+    marginBottom: 25,
   },
-  driverImage: { width: 60, height: 60, borderRadius: 30, marginBottom: 10 },
-  statusText: { fontSize: 18, color: '#FF5733', marginBottom: 5 },
-  addressText: { fontSize: 16, color: '#888', textAlign: 'center' },
-  orderReceivedButton: {
-    marginTop: 15,
-    backgroundColor: '#FF5733',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+  icon: {
+    marginRight: 10,
+    padding: 6,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 15,
   },
-  orderReceivedText: { color: '#fff', fontSize: 16 },
+  timelineContent: {
+    marginLeft: 10,
+  },
+  timelineTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 3,
+  },
+  timelineDate: {
+    fontSize: 14,
+    color: '#666',
+  },
+  updateLink: {
+    color: '#004d40',
+    textDecorationLine: 'underline',
+    marginTop: 5,
+    fontWeight: '500',
+  },
 });
 
 export default OrderTrackingScreen;
